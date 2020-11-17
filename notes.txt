@@ -1,0 +1,55 @@
+    "batch_size": 24,
+
+    "lr": 0.001,
+
+        "loss_config": [
+        "{\"greedy_reconstruct_loss\": {\"train_outside\": false, \"reconstruct_loss\": \"reconstruct_softmax_v2_loss\", \"mode\": \"01-basic\", \"train_tree\": true}}",
+        "{\"reconstruct_softmax_v2\": {\"skip\": true, \"path\": \"./resource/nli_top_10k.txt\"}}"
+    ]
+
+        "model_config": "{\"topk-mlp\": {\"normalize\": \"unit\", \"lse\": false, \"K\": 2, \"share\": false, \"outside\": true, \"size\": 400}}",
+
+    "eval_config": [
+        "{\"unlabeled_binary_parsing\": {\"name\": \"eval-gt-k1\", \"cky_mode\": \"diora\", \"K\": 1, \"enabled\": true, \"outside\": false, \"ground_truth\": \"/mnt/nfs/work1/mccallum/adrozdov/data/ptb-dev-diora.parse\"}}",
+        "{\"unlabeled_binary_parsing\": {\"name\": \"eval-gt-k2\", \"cky_mode\": \"diora\", \"K\": 2, \"enabled\": true, \"outside\": false, \"ground_truth\": \"/mnt/nfs/work1/mccallum/adrozdov/data/ptb-dev-diora.parse\"}}"
+    ],
+
+    "train_data_type": "wsj_emnlp",
+    "train_filter_length": 30,
+    "train_path": "/mnt/nfs/work1/mccallum/adrozdov/data/allnli.diora.jsonl-downsampled",
+
+    "validation_batch_size": 24,
+    "validation_checkpoint_acc": false,
+    "validation_data_type": "wsj_emnlp",
+    "validation_filter_length": 40,
+    "validation_path": "/mnt/nfs/work1/mccallum/adrozdov/data/ptb-dev-diora.parse",
+
+---
+
+python main.py --cuda \
+    --experiment_name s_diora_demo  \
+    --default_experiment_directory ~/tmp/diora/log \
+    --batch_size 24 \
+    --validation_batch_size 32 \
+    --load_model_path ~/checkpoints/mlp-softmax/model.pt \
+    --lr 0.001 \
+    --train_data_type wsj_emnlp \
+    --train_filter_length 20 \
+    --train_path ~/data/allnli_downsampled.jsonl \
+    --validation_data_type wsj_emnlp \
+    --validation_path ~/data/ptb_dev.jsonl \
+    --validation_filter_length 40 \
+    --elmo_cache_dir ~/data/elmo \
+    --emb elmo \
+    --eval_after 1 \
+    --eval_every_epoch 1 \
+    --eval_every_batch -1 \
+    --log_every_batch 100 \
+    --max_epoch 5 \
+    --max_step -1 \
+    --opt adam \
+    --save_after 0 \
+    --model_config '{"topk-mlp": {"normalize": "unit", "K": 3, "outside": true, "size": 400}}' \
+    --eval_config '{"unlabeled_binary_parsing": {"name": "eval-k2", "cky_mode": "diora", "K": 2, "enabled": true, "outside": false, "ground_truth": "~/data/ptb-dev-diora.parse"}}' \
+    --loss_config '{"greedy_reconstruct_loss": {"reconstruct_loss": "reconstruct_softmax_v2_loss", "train_tree": true}}' \
+    --loss_config '{"reconstruct_softmax_v2": {"skip": true, "path": "./resource/ptb_top_10k.txt"}}'
