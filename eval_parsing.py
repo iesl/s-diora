@@ -145,15 +145,8 @@ class ParsingComponent(BaseEvalFunc):
 
     def compare(self, prev_best, results):
         out = []
-        for key in ['f1', '[nary,nopunct]_f1']:
-            best_dict_key = 'best__{}__{}'.format(self.name, key)
-            val = results['meta'][key]
-            if best_dict_key in prev_best:
-                prev_val = prev_best[best_dict_key]['value']
-                is_best = prev_val < val
-            else:
-                is_best = True
-            out.append((key, val, is_best))
+        key, val, is_best = 'placeholder', None, True
+        out.append((key, val, is_best))
         return out
 
     def parse(self, trainer, info):
@@ -270,19 +263,25 @@ class ParsingComponent(BaseEvalFunc):
                 return '(ROOT {})'.format(helper(tr))
 
             # Write more general format.
-            with open(outfile + '.pred', 'w') as f:
+            path = outfile + '.pred'
+            logger.info('writing parse tree output -> {}'.format(path))
+            with open(path, 'w') as f:
                 for x in pred_lst:
                     pred_binary_tree = x['binary_tree']
                     f.write(to_raw_parse(pred_binary_tree) + '\n')
 
-            with open(outfile + '.gold', 'w') as f:
+            path = outfile + '.gold'
+            logger.info('writing parse tree output -> {}'.format(path))
+            with open(path, 'w') as f:
                 for x in pred_lst:
                     example_id = x['example_id']
                     gt = corpus[example_id]
                     gt_binary_tree = gt['binary_tree']
                     f.write(to_raw_parse(gt_binary_tree) + '\n')
 
-            with open(outfile + '.diora', 'w') as f:
+            path = outfile + '.diora'
+            logger.info('writing parse tree output -> {}'.format(path))
+            with open(path, 'w') as f:
                 for x in pred_lst:
                     example_id = x['example_id']
                     gt = corpus[example_id]
